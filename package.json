@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "watch": "shadow-cljs watch app;",
+    "release": "shadow-cljs release app;",
+    "server": "shadow-cljs server;"
+  },
+  "devDependencies": {
+    "shadow-cljs": "^2.3.22"
+  },
+  "dependencies": {}
+}

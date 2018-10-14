@@ -1,0 +1,24 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src"]
+
+ :nrepl {:port 9000
+         :init-ns game-of-life.core}
+
+ :dependencies
+ [[cider/cider-nrepl "0.18.0"]]
+
+ :builds
+ {:app {:target :browser
+        :output-dir "public/js"
+        :asset-path "/js"
+
+        :modules
+        {:main ;; <- becomes public/js/main.js
+         {:entries [game-of-life.core]}}
+
+        ;; start a development http server on http://localhost:8020
+        :devtools
+        {:http-root "public"
+         :http-port 8020}}}}
+
