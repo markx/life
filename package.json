@@ -2,7 +2,8 @@
   "scripts": {
     "watch": "shadow-cljs watch app;",
     "release": "shadow-cljs release app;",
-    "server": "shadow-cljs server;"
+    "server": "shadow-cljs server;",
+    "repl": "shadow-cljs repl :app;"
   },
   "devDependencies": {
     "shadow-cljs": "^2.3.22"
