@@ -9,9 +9,9 @@
   ([width height]
    {:width width
     :height height
-    :cells [(for [ y (range width)
-                     x (range height)]
-              [x y 0])]})
+    :cells [(for [ col (range width)
+                     row (range height)]
+              [row col 0])]})
   ([width height matrix]
    {:width width
     :height height

@@ -1,58 +1,66 @@
 (ns game-of-life.core
   (:require
-   [game-of-life.life :as l]))
+   [game-of-life.life :as l]
+   [reagent.core :as r]
+   [impi.core :as impi]))
 
 
-(defn matrix->grid [matrix]
-    (mapcat (fn [r row]
-              (map #(vector r %1 %2) (range) row))
-            (range) matrix))
+(defonce matrix (atom [[0 0 0 0]
+                       [0 1 0 0]
+                       [0 1 0 0]
+                       [0 0 0 0]]))
 
-(def matrix
-    [[0 0 0 0]
-     [0 1 0 0]
-     [0 1 0 0]
-     [0 0 0 0]])
+(def CELL-SIZE 20)
 
-(defn render [canvas cells]
+
+(defn make-cell [[row col value]]
+  {:pixi.shape/type :pixi.shape.type/rounded-rectangle
+      :pixi.shape/position (map #(* CELL-SIZE %) [col row])
+      :pixi.shape/size [CELL-SIZE CELL-SIZE]
+      :pixi.shape/line
+      {:pixi.line/color 0xbbbbbb
+       :pixi.line/width 2}
+      :pixi.rounded-rectangle/radius 4
+      :pixi.shape/fill
+      {:pixi.fill/color (if (= 0 value)
+                          0xffffff
+                          0x000000)}})
+
+
+(defn make-scene [cells]
+  {:pixi/renderer
+    {:pixi.renderer/size [400 400]
+     :pixi.renderer/background-color 0xbbbbbb}
+    :pixi/stage
+    {:impi/key :gfx
+     :pixi.object/type :pixi.object.type/graphics
+     :pixi.object/position [0 0]
+     :pixi.graphics/shapes
+     (vec (map make-cell cells))}})
+
+
+(defn render [el cells]
   (js/console.log "cells: " cells)
-  (let [ctx (.getContext canvas "2d")
-        nrow 4
-        ncol 4
-        rectWidth (/ (.-width canvas) ncol)
-        rectHeight (/ (.-height canvas) nrow)]
+  (impi/mount :scene (make-scene cells) el))
 
-    (set! (.-fillStyle ctx) "green")
-    (doseq [[y x v] (filter #(< 0 (last %)) cells)]
-          (.fillRect ctx (* x rectWidth) (* y rectHeight)  rectWidth rectHeight))))
-
-(defn clear-canvas [canvas]
-  (.clearRect (.getContext canvas "2d")
-   0 0
-   (.-width canvas)
-   (.-height canvas)))
-
-(defn main-loop 
-  [canvas life]
+(defn main-loop
+  [el life]
   (js/console.log "game loop")
-  (clear-canvas canvas)
   (let [new-life (l/update-life life)]
-    (render canvas (:cells life))
-    (js/setTimeout #(main-loop canvas new-life) 1000)))
-    
+    (render el (:cells life))
+    (js/setTimeout #(main-loop el new-life) 1000)))
+
 
 (defn main []
-  (def canvas (.getElementById js/document "canvas"))
-  (def init-life (l/new-life 4 4 matrix))
-  (main-loop canvas init-life))
+  (let [el (.getElementById js/document "app")
+        init-life (l/new-life 4 4 @matrix)]
+    (main-loop el init-life)))
 
 (set! (.-onload js/window) main)
 
 
 (comment
-  (.-offsetWidth canvas)
-  (def matrix [[0 0 true] [1 1 true][2 2 true][3 3 true]]))
-
+  (reset! matrix [[0 0 true] [1 1 true][2 2 true][3 3 true]]))
 
 
 ;; start is called by init and after code reloading finishes
@@ -61,13 +69,11 @@
 
 (defn ^:export init []
   ;; init is called ONCE when the page loads
-  ;; this is called in the index.html and must be exported
-  ;; so it is available even in :advanced release builds
   (js/console.log "init")
   (start))
 
 ;; this is called before any code is reloaded
 (defn ^:dev/before-load stop []
   (js/console.log "stop")
-  (and canvas (clear-canvas canvas)))
+  (impi/unmount :scene))
 
