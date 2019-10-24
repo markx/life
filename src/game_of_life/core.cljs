@@ -62,7 +62,7 @@
 
 
 
-(defn render [el cells]
+(defn render [el {:keys [cells]}]
   (js/console.log "cells: " cells)
   (impi/mount :scene (make-scene cells) el))
 
@@ -71,7 +71,6 @@
   (js/console.log "game loop")
   (let [new-life (l/update-life @state)]
     (reset! state new-life)
-    (render el (:cells new-life))
     (js/setTimeout #(main-loop el state) 1000)))
 
 
@@ -79,7 +78,12 @@
   (let [el (.getElementById js/document "app")
         init-life (l/new-life 4 4 matrix)]
     (reset! *state init-life)
-    (main-loop el *state)))
+    (main-loop el *state)
+    (letfn [(render-loop []
+              (render el @*state)
+              (js/requestAnimationFrame render-loop))]
+      (js/requestAnimationFrame render-loop))))
+
 
 (set! (.-onload js/window) main)
 
