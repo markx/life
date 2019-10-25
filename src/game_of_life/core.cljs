@@ -63,7 +63,6 @@
 
 
 (defn render [el {:keys [cells]}]
-  (js/console.log "cells: " cells)
   (impi/mount :scene (make-scene cells) el))
 
 (defn main-loop
@@ -76,7 +75,7 @@
 
 (defn main []
   (let [el (.getElementById js/document "app")
-        init-life (l/new-life 4 4 matrix)]
+        init-life (l/new-life 8 8)]
     (reset! *state init-life)
     (main-loop el *state)
     (letfn [(render-loop []
