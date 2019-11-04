@@ -1,9 +1,9 @@
 {
   "scripts": {
-    "watch": "shadow-cljs watch app;",
-    "release": "shadow-cljs release app;",
-    "server": "shadow-cljs server;",
-    "repl": "shadow-cljs repl :app;"
+    "start": "shadow-cljs watch app;",
+    "repl": "shadow-cljs repl :app;",
+    "build": "npm run clean && shadow-cljs release app && cp -R public/ dist",
+    "clean": "rm -rf public/js/"
   },
   "devDependencies": {
     "shadow-cljs": "^2.8.48",
